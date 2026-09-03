@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://cc-vibe.com",
+    "ANTHROPIC_AUTH_TOKEN": "sk-f9aca7fff51317e8f9de8f28a82e66ee4511413d020f8409a7d68934bfbef597",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  }
+}

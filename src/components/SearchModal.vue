@@ -23,7 +23,7 @@ const search = debounce(async (value, categoryId) => {
     const { data } = await listMovies(0, 20, {
       value: value.trim().length >= 3 ? value : null,
       categoryId,
-    })
+    }, null)
     results.value = data.content
   } finally {
     loading.value = false
@@ -88,7 +88,7 @@ const close = () => {
         <router-link
             v-for="movie in results"
             :key="movie.id"
-            :to="`/movie/${movie.id}`"
+            :to="`/${movie.type === 'SERIES' || movie.seasons ? 'series' : 'movie'}/${movie.id}`"
             @click="close"
             class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition"
         >

@@ -1,13 +1,13 @@
 import api from './api'
 
-export const listMovies = (page = 0, size = 10, search = {}) =>
+export const listMovies = (page = 0, size = 10, search = {}, type = "MOVIE") =>
     api.post('/movie/list', {
         page,
         size,
         search: {
             value: search.value ?? null,
             categoryId: search.categoryId ?? null,
-            type: "MOVIE"
+            type: type
         },
     })
 

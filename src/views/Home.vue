@@ -12,7 +12,7 @@ const searchOpen = ref(false)
 
 onMounted(async () => {
   try {
-    const { data } = await listMovies(0, 20)
+    const { data } = await listMovies(0, 20, {}, null)
     movies.value = data.content
   } finally {
     loading.value = false
@@ -45,7 +45,7 @@ onMounted(async () => {
 
       <!-- Movies -->
       <h2 class="text-xl font-semibold text-white mb-4">
-        Barcha kinolar
+        Barcha kino va seriallar
       </h2>
 
       <p

@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from 'vue'
+
 const props = defineProps({
   movie: {
     type: Object,
@@ -12,9 +14,14 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['edit'])
+const imageLoaded = ref(false)
 
 // Type ni infer qil - seasons bo'lsa SERIES, aks holda MOVIE
 const movieType = props.movie.type || (props.movie.seasons ? 'SERIES' : 'MOVIE')
+
+const onImageLoad = () => {
+  imageLoaded.value = true
+}
 </script>
 
 <template>
@@ -24,16 +31,27 @@ const movieType = props.movie.type || (props.movie.seasons ? 'SERIES' : 'MOVIE')
   >
     <div class="relative overflow-hidden bg-gradient-to-br from-purple-900/50 to-indigo-900/50">
       <!-- Image container with better aspect ratio -->
-      <div class="aspect-[2/3] relative overflow-hidden">
+      <div class="aspect-[2/3] relative overflow-hidden bg-slate-800/30">
+        <!-- Skeleton loader / placeholder -->
+        <div
+            v-if="!imageLoaded"
+            class="absolute inset-0 bg-gradient-to-r from-slate-800/50 via-slate-700/50 to-slate-800/50 animate-pulse"
+        />
+
+        <!-- Main image -->
         <img
             v-if="movie.imageUrl"
             :src="movie.imageUrl"
             :alt="movie.title"
+            @load="onImageLoad"
+            loading="lazy"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            :class="imageLoaded ? 'opacity-100' : 'opacity-0'"
         />
 
+        <!-- Fallback emoji -->
         <div
-            v-else
+            v-if="!movie.imageUrl"
             class="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-800 to-indigo-900 text-white/30 text-5xl"
         >
           🎬

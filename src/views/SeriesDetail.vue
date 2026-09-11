@@ -111,90 +111,96 @@ const handleEpisodeAdded = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-4 md:pl-24 md:pr-10 pt-5 pb-10">
+  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-3 sm:px-4 md:pl-24 md:pr-10 pt-4 sm:pt-5 pb-10">
     <div class="max-w-6xl mx-auto">
 
       <p v-if="loading" class="text-white/40 text-center py-10">Yuklanmoqda...</p>
 
       <template v-else-if="series">
-        <!-- Top: info + image -->
-        <div class="grid md:grid-cols-2 gap-8 mb-8 items-start">
-          <div>
-            <h1 class="text-3xl font-bold text-white mb-3">{{ series.title }}</h1>
+        <!-- Top: image full width + info -->
+        <div class="rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/50 mb-6 sm:mb-8 bg-black aspect-video">
+          <img v-if="series.imageUrl" :src="series.imageUrl" :alt="series.title" class="w-full h-full object-cover" />
+        </div>
 
-            <div class="flex gap-2 mb-4 flex-wrap">
-              <span v-for="c in series.categories" :key="c.id" class="text-sm text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full">
-                {{ c.name }}
-              </span>
-            </div>
+        <!-- Info section -->
+        <div class="mb-8">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">{{ series.title }}</h1>
 
-            <p class="text-white/70 leading-relaxed">{{ series.description }}</p>
+          <div class="flex gap-2 mb-4 sm:mb-6 flex-wrap">
+            <span v-for="c in series.categories" :key="c.id" class="text-xs sm:text-sm text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-3 py-1 rounded-lg transition">
+              {{ c.name }}
+            </span>
           </div>
 
-          <div class="rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/50 aspect-video bg-black">
-            <img v-if="series.imageUrl" :src="series.imageUrl" :alt="series.title" class="w-full h-full object-cover" />
-          </div>
+          <p class="text-white/70 leading-relaxed text-sm sm:text-base max-w-3xl">{{ series.description }}</p>
         </div>
 
         <!-- Seasons (if available) -->
-        <div v-if="hasSeason" class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">Fasllar</h2>
+        <div v-if="hasSeason" class="mb-12">
+          <div class="flex items-center justify-end mb-6">
             <button
               v-if="auth.hasPermission('upsert movie') && canAddSeason"
               @click="openAddSeason"
-              class="text-sm text-purple-400 hover:text-purple-300"
+              class="text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-4 py-2 rounded-lg transition shadow-lg shadow-purple-500/20"
             >
               + Fasl qo'shish
             </button>
           </div>
-          <div class="flex gap-2 flex-wrap">
+          <div class="flex gap-3 flex-wrap">
             <button
               v-for="season in series.seasons"
               :key="season.id"
               @click="selectSeason(season.id)"
-              class="px-4 py-2 rounded-lg transition"
+              class="group relative px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium transition-all text-xs sm:text-sm duration-300"
               :class="
                 selectedSeasonId === season.id
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white/5 text-white/60 hover:bg-white/10'
+                  ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg shadow-purple-500/30 scale-105'
+                  : 'bg-white/[0.04] border border-white/15 text-white/70 hover:bg-white/[0.08] hover:border-white/30 hover:text-white'
               "
             >
-              {{ season.seasonName || `Fasl ${season.orderNumber}` }}
+              <span class="flex items-center gap-2">
+                <span v-if="selectedSeasonId === season.id" class="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></span>
+                {{ season.seasonName || `Fasl ${season.orderNumber}` }}
+              </span>
             </button>
           </div>
         </div>
 
         <!-- Episodes -->
         <div v-if="sortedDisplayEpisodes.length || hasSeason" class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">
-              {{ hasSeason ? 'Qismlar' : 'Epizodlar' }}
-            </h2>
+          <div class="flex items-center justify-end mb-6">
             <button
               v-if="auth.hasPermission('upsert movie') && (!hasSeason || selectedSeasonId)"
               @click="openAddEpisode(selectedSeasonId)"
-              class="text-sm text-purple-400 hover:text-purple-300"
+              class="text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-4 py-2 rounded-lg transition shadow-lg shadow-indigo-500/20"
             >
               + Qism qo'shish
             </button>
           </div>
 
           <!-- Episodes Grid -->
-          <div v-if="sortedDisplayEpisodes.length" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div v-if="sortedDisplayEpisodes.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             <button
               v-for="episode in sortedDisplayEpisodes"
               :key="episode.id"
               @click="selectEpisode(episode)"
-              class="p-3 rounded-lg border transition text-left"
+              class="group relative p-3 sm:p-4 rounded-lg border transition-all duration-300 text-left overflow-hidden"
               :class="
                 selectedEpisode?.id === episode.id
-                  ? 'bg-purple-600/40 border-purple-500 text-white'
-                  : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                  ? 'bg-gradient-to-br from-purple-600/60 to-purple-500/30 border-purple-400/60 text-white shadow-lg shadow-purple-500/30 scale-[1.02]'
+                  : 'bg-white/[0.03] border-white/15 text-white/70 hover:bg-white/[0.08] hover:border-white/30 hover:text-white'
               "
             >
-              <div class="font-semibold">Qism {{ episode.orderNumber }}</div>
-              <div v-if="episode.title" class="text-sm text-white/50 mt-1">{{ episode.title }}</div>
+              <!-- Animated background effect -->
+              <div v-if="selectedEpisode?.id === episode.id" class="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-transparent to-purple-400/10 animate-pulse pointer-events-none"></div>
+
+              <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-bold text-xs sm:text-sm bg-white/10 px-2.5 py-0.5 rounded">{{ episode.orderNumber }}</span>
+                  <span v-if="selectedEpisode?.id === episode.id" class="inline-block w-2 h-2 rounded-full bg-purple-300 animate-pulse"></span>
+                </div>
+                <div v-if="episode.title" class="text-[10px] sm:text-xs text-white/60 line-clamp-2 group-hover:text-white/80">{{ episode.title }}</div>
+              </div>
             </button>
           </div>
         </div>

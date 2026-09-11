@@ -4,6 +4,7 @@ import { listSeries, getSeries } from '../services/series.js'
 import { listCategories } from '../services/category.js'
 import { useAuthStore } from '../stores/auth.js'
 import SeriesCard from '../components/SeriesCard.vue'
+import SkeletonLoader from '../components/SkeletonLoader.vue'
 import SeriesForm from '../components/SeriesForm.vue'
 
 const auth = useAuthStore()
@@ -108,13 +109,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-      class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-4 md:pl-24 md:pr-10 py-10"
-  >
+  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-3 sm:px-4 md:pl-24 md:pr-10 py-6 sm:py-10">
     <div class="max-w-6xl mx-auto">
 
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-white">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-white">
           Seriallar
         </h1>
 
@@ -203,23 +202,27 @@ onMounted(async () => {
 
       <p
           v-if="loading"
-          class="text-white/40 text-center py-10"
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mb-8"
       >
-        Yuklanmoqda...
+        <SkeletonLoader v-for="i in 6" :key="i" />
       </p>
 
       <template v-else>
 
-        <p
+        <div
             v-if="!seriesList.length"
-            class="text-white/40 text-center py-10"
+            class="text-center py-16"
         >
-          Seriallar topilmadi
-        </p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-white/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <rect x="6" y="4" width="14" height="10" rx="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 8v10a1.5 1.5 0 001.5 1.5H16" />
+          </svg>
+          <p class="text-white/40 text-sm">Seriallar topilmadi</p>
+        </div>
 
         <div
             v-else
-            class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"
+            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mb-8"
         >
           <SeriesCard
               v-for="series in seriesList"

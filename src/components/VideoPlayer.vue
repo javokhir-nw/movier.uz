@@ -136,10 +136,10 @@ onMounted(() => {
     <button
         v-if="activeSource && !playing"
         @click="togglePlay"
-        class="absolute inset-0 flex items-center justify-center"
+        class="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/30 transition-all duration-300 group/play"
     >
-      <span class="w-16 h-16 rounded-full bg-purple-600/90 hover:bg-purple-500 flex items-center justify-center transition shadow-xl">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white ml-1" viewBox="0 0 24 24" fill="currentColor">
+      <span class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 flex items-center justify-center transition-all duration-300 shadow-2xl shadow-purple-500/50 hover:scale-110 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-white ml-1" viewBox="0 0 24 24" fill="currentColor">
           <path d="M8 5v14l11-7z" />
         </svg>
       </span>
@@ -177,20 +177,33 @@ onMounted(() => {
           <button
               v-if="sortedSources.length > 1"
               @click="showQualityMenu = !showQualityMenu"
-              class="text-white/70 hover:text-white text-xs px-2 py-1 rounded border border-white/20 transition"
+              class="flex items-center gap-1.5 text-white/70 hover:text-white text-xs px-3 py-1.5 rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/5 transition"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1h3m-3 18h3m4.386-5.614l2.12 2.121m0-5.392l-2.12 2.12M4.114 7.386l2.121-2.12m0 5.392l-2.121-2.12M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
             {{ activeSource?.sourceName }}
           </button>
 
-          <div v-if="showQualityMenu" class="absolute bottom-8 right-16 bg-slate-900 border border-white/10 rounded-lg overflow-hidden shadow-xl">
+          <div v-if="showQualityMenu" class="absolute bottom-12 right-0 bg-gradient-to-b from-slate-800 to-slate-900 border border-white/15 rounded-lg overflow-hidden shadow-2xl shadow-black/50 min-w-48">
+            <div class="px-3 py-2 border-b border-white/10">
+              <p class="text-white/60 text-[10px] font-semibold uppercase tracking-wider">Sifat</p>
+            </div>
             <button
                 v-for="s in sortedSources"
                 :key="s.sourceId"
                 @click="selectSource(s.sourceId)"
-                class="block w-full text-left px-4 py-2 text-xs whitespace-nowrap transition"
-                :class="s.sourceId === activeSourceId ? 'bg-purple-600 text-white' : 'text-white/70 hover:bg-white/10'"
+                class="w-full text-left px-4 py-2.5 text-xs transition flex items-center gap-3 group"
+                :class="s.sourceId === activeSourceId
+                  ? 'bg-gradient-to-r from-purple-600/50 to-purple-500/30 text-white border-l-2 border-purple-500'
+                  : 'text-white/70 hover:bg-white/[0.08] hover:text-white'"
             >
-              {{ s.sourceName }}
+              <span v-if="s.sourceId === activeSourceId" class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+              <span v-else class="w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-white/40"></span>
+              <span class="flex-1">{{ s.sourceName }}</span>
+              <svg v-if="s.sourceId === activeSourceId" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
+              </svg>
             </button>
           </div>
 

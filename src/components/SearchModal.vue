@@ -93,10 +93,19 @@ const close = () => {
             :key="movie.id"
             :to="`/${movie.type === 'SERIES' || movie.seasons ? 'series' : 'movie'}/${movie.id}`"
             @click="close"
-            class="flex items-center gap-2 p-1.5 sm:p-2 rounded-lg hover:bg-white/5 transition"
+            class="flex items-center gap-2 p-1.5 sm:p-2 rounded-lg hover:bg-white/5 transition group"
         >
-          <div class="w-12 h-8 sm:w-16 sm:h-10 bg-gradient-to-br from-purple-800 to-indigo-900 rounded flex items-center justify-center text-sm sm:text-lg shrink-0 overflow-hidden">
-            <img v-if="movie.imageUrl" :src="movie.imageUrl" :alt="movie.title" class="w-full h-full object-cover" />
+          <div class="w-12 h-8 sm:w-16 sm:h-10 bg-gradient-to-br from-purple-800 to-indigo-900 rounded flex items-center justify-center text-sm sm:text-lg shrink-0 overflow-hidden relative">
+            <!-- Skeleton loader -->
+            <div v-if="movie.imageUrl" class="absolute inset-0 bg-gradient-to-r from-slate-800/50 via-slate-700/50 to-slate-800/50 animate-pulse group-hover:animate-none"></div>
+
+            <!-- Image -->
+            <img
+              v-if="movie.imageUrl"
+              :src="movie.imageUrl"
+              :alt="movie.title"
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
             <span v-else>🎬</span>
           </div>
           <span class="text-white text-xs sm:text-sm truncate">{{ movie.title }}</span>

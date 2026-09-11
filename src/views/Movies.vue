@@ -5,6 +5,7 @@ import { listCategories } from '../services/category'
 import { listSources } from '../services/source'
 import { useAuthStore } from '../stores/auth'
 import MovieCard from '../components/MovieCard.vue'
+import SkeletonLoader from '../components/SkeletonLoader.vue'
 import MovieForm from '../components/MovieForm.vue'
 
 const auth = useAuthStore()
@@ -119,14 +120,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div
-      class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-4 md:pl-24 md:pr-10 py-10"
-  >
+  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-3 sm:px-4 md:pl-24 md:pr-10 py-6 sm:py-10">
     <div class="max-w-6xl mx-auto">
 
       <!-- Header -->
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-white">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <h1 class="text-2xl sm:text-3xl font-bold text-white">
           Kinolar
         </h1>
 
@@ -216,27 +215,27 @@ onMounted(async () => {
       </div>
 
       <!-- Loading -->
-      <p
-          v-if="loading"
-          class="text-white/40 text-center py-10"
-      >
-        Yuklanmoqda...
-      </p>
+      <div v-if="loading" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mb-8">
+        <SkeletonLoader v-for="i in 6" :key="i" />
+      </div>
 
       <template v-else>
 
         <!-- Empty -->
-        <p
+        <div
             v-if="!movies.length"
-            class="text-white/40 text-center py-10"
+            class="text-center py-16"
         >
-          Kinolar topilmadi
-        </p>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto text-white/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.55-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.45.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <p class="text-white/40 text-sm">Kinolar topilmadi</p>
+        </div>
 
         <!-- Grid -->
         <div
             v-else
-            class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"
+            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mb-8"
         >
           <MovieCard
               v-for="movie in movies"

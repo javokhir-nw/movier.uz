@@ -42,31 +42,31 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-4 md:pl-24 md:pr-10 pt-5 pb-10">
-    <div class="max-w-5xl mx-auto">
+  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-3 sm:px-4 md:pl-24 md:pr-10 pt-4 sm:pt-5 pb-10">
+    <div class="max-w-6xl mx-auto">
 
       <p v-if="loading" class="text-white/40 text-center py-10">Yuklanmoqda...</p>
 
       <template v-else-if="movie">
-        <!-- Top: info + image -->
-        <div class="grid md:grid-cols-2 gap-8 mb-8 items-start">
-          <div>
-            <h1 class="text-3xl font-bold text-white mb-3">{{ movie.title }}</h1>
-
-            <div class="flex gap-2 mb-4 flex-wrap">
-              <span v-for="c in movie.categories" :key="c.id" class="text-sm text-purple-300 bg-purple-500/10 px-3 py-1 rounded-full">
-                {{ c.name }}
-              </span>
-            </div>
-
-            <p class="text-white/70 leading-relaxed">{{ movie.description }}</p>
-          </div>
-
-          <div class="rounded-xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/50 aspect-video bg-black">
-            <img v-if="movie.imageUrl" :src="movie.imageUrl" :alt="movie.title" class="w-full h-full object-cover" />
-          </div>
+        <!-- Top: image full width + info -->
+        <div class="rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/50 mb-6 sm:mb-8 bg-black aspect-video">
+          <img v-if="movie.imageUrl" :src="movie.imageUrl" :alt="movie.title" class="w-full h-full object-cover" />
         </div>
 
+        <!-- Info section -->
+        <div class="mb-8">
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">{{ movie.title }}</h1>
+
+          <div class="flex gap-2 mb-4 sm:mb-6 flex-wrap">
+            <span v-for="c in movie.categories" :key="c.id" class="text-xs sm:text-sm text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-3 py-1 rounded-lg transition">
+              {{ c.name }}
+            </span>
+          </div>
+
+          <p class="text-white/70 leading-relaxed text-sm sm:text-base max-w-3xl">{{ movie.description }}</p>
+        </div>
+
+        <!-- Video Player -->
         <VideoPlayer :sources="movie.sources || []" :poster="movie.imageUrl" :movie-id="movie.id" />
       </template>
     </div>

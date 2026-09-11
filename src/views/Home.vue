@@ -62,7 +62,7 @@ onMounted(async () => {
 
       <div
           v-else
-          class="grid grid-cols-3 gap-2 sm:gap-3"
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3"
       >
         <MovieCard
             v-for="movie in movies"

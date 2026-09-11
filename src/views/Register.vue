@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
@@ -8,6 +8,12 @@ const password = ref('')
 const error = ref('')
 const auth = useAuthStore()
 const router = useRouter()
+
+onMounted(() => {
+  if (auth.isAuthenticated) {
+    router.push('/')
+  }
+})
 
 const submit = async () => {
   error.value = ''

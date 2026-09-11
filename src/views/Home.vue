@@ -28,10 +28,12 @@ onMounted(async () => {
       from-purple-950
       via-slate-900
       to-indigo-950
-      px-4
+      px-2
+      sm:px-4
       md:pl-24
       md:pr-10
-      py-10
+      py-6
+      sm:py-10
     "
   >
     <div class="max-w-6xl mx-auto">
@@ -44,26 +46,23 @@ onMounted(async () => {
       />
 
       <!-- Movies -->
-      <h2 class="text-xl font-semibold text-white mb-4">
-        Barcha kino va seriallar
-      </h2>
+      <div class="mb-4 sm:mb-6">
+        <h2 class="text-lg sm:text-2xl font-bold text-white mb-1 tracking-tight">
+          Barcha kino va seriallar
+        </h2>
+        <div class="h-0.5 w-10 sm:w-12 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
+      </div>
 
       <p
           v-if="loading"
-          class="text-white/40 text-center py-10"
+          class="text-white/40 text-center py-8 sm:py-12"
       >
         Yuklanmoqda...
       </p>
 
       <div
           v-else
-          class="
-          grid
-          grid-cols-2
-          md:grid-cols-4
-          lg:grid-cols-5
-          gap-4
-        "
+          class="grid grid-cols-3 gap-2 sm:gap-3"
       >
         <MovieCard
             v-for="movie in movies"

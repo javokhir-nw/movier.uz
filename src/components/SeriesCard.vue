@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   movie: {
     type: Object,
     required: true,
@@ -17,6 +19,15 @@ defineProps({
 })
 
 const emit = defineEmits(['edit', 'delete'])
+
+const isPremyera = computed(() => {
+  if (!props.movie.createdAt) return false
+  const createdDate = new Date(props.movie.createdAt)
+  const now = new Date()
+  const diffTime = Math.abs(now - createdDate)
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays <= 3
+})
 </script>
 
 <template>
@@ -38,6 +49,8 @@ const emit = defineEmits(['edit', 'delete'])
       >
         🎬
       </div>
+
+
 
       <!-- Action buttons -->
       <div v-if="canEdit || canDelete" class="absolute top-2 right-2 flex gap-1.5">
@@ -69,11 +82,17 @@ const emit = defineEmits(['edit', 'delete'])
     </div>
 
     <div class="p-3">
-      <h3
-          class="text-white font-semibold truncate group-hover:text-purple-400 transition"
-      >
-        {{ movie.title }}
-      </h3>
+      <div class="flex items-center justify-between gap-1.5">
+        <h3
+            class="text-white font-semibold truncate group-hover:text-purple-400 transition flex-1"
+        >
+          {{ movie.title }}
+        </h3>
+        
+        <span v-if="isPremyera" class="shrink-0 bg-gradient-to-r from-rose-600 to-red-500 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(225,29,72,0.4)] animate-pulse border border-white/20">
+          PREMYERA
+        </span>
+      </div>
 
       <div class="flex gap-1 mt-1 flex-wrap">
         <span

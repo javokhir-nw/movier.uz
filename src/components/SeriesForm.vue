@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { upsertSeries } from '../services/series'
+import SearchableSelect from './SearchableSelect.vue'
 
 const props = defineProps({
   series: {
@@ -91,25 +92,7 @@ watch(
     }
 )
 
-const toggleCategory = (id) => {
-  const index = form.value.categoryIds.indexOf(id)
 
-  if (index === -1) {
-    form.value.categoryIds.push(id)
-  } else {
-    form.value.categoryIds.splice(index, 1)
-  }
-}
-
-const toggleActor = (id) => {
-  const index = form.value.actorIds.indexOf(id)
-
-  if (index === -1) {
-    form.value.actorIds.push(id)
-  } else {
-    form.value.actorIds.splice(index, 1)
-  }
-}
 
 const submit = async () => {
   error.value = ''
@@ -218,92 +201,48 @@ const submit = async () => {
         />
       </div>
 
-      <div class="mb-6">
-        <label class="block text-white/70 text-sm mb-2">
-          Kategoriyalar
-        </label>
-
-        <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto styled-scroll pr-1 pb-1">
-          <button
-              v-for="category in categories"
-              :key="category.id"
-              type="button"
-              @click="toggleCategory(category.id)"
-              class="px-4 py-1.5 rounded-full text-xs font-semibold transition"
-              :class="
-                form.categoryIds.includes(category.id)
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-white/5 text-white/60 hover:bg-white/10'
-              "
-          >
-            {{ category.name }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Actors -->
-      <div v-if="actors?.length" class="mb-6">
-        <label class="block text-white/70 text-sm mb-2">
-          Aktyorlar
-        </label>
-        <select
-            v-model="form.actorIds"
-            multiple
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 min-h-[120px] styled-scroll"
-        >
-          <option
-              v-for="a in actors"
-              :key="a.id"
-              :value="a.id"
-              class="bg-slate-900 hover:bg-purple-600 mb-1 px-2 py-1.5 rounded cursor-pointer"
-          >
-            {{ a.name }}
-          </option>
-        </select>
-        <p class="text-[10px] text-white/40 mt-1 pl-1">Ko'p tanlash uchun Ctrl (Mac: Cmd) tugmasini bosib turing</p>
-      </div>
-
+      <!-- Lists in Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <!-- Director -->
+        <!-- Categories -->
         <div>
-          <label class="block text-white/70 text-sm mb-2">
-            Rejissyor
-          </label>
-          <select
-              v-model="form.directorId"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-          >
-            <option :value="null">Tanlanmagan</option>
-            <option
-                v-for="a in actors"
-                :key="a.id"
-                :value="a.id"
-                class="bg-slate-900"
-            >
-              {{ a.name }}
-            </option>
-          </select>
+          <label class="block text-white/70 text-sm mb-2">Kategoriyalar</label>
+          <SearchableSelect 
+            v-model="form.categoryIds" 
+            :options="categories" 
+            :multiple="true" 
+            placeholder="Kategoriya tanlang" 
+          />
         </div>
 
         <!-- Country -->
         <div>
-          <label class="block text-white/70 text-sm mb-2">
-            Mamlakat
-          </label>
-          <select
-              v-model="form.countryId"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-          >
-            <option :value="null">Tanlanmagan</option>
-            <option
-                v-for="c in countries"
-                :key="c.id"
-                :value="c.id"
-                class="bg-slate-900"
-            >
-              {{ c.name }}
-            </option>
-          </select>
+          <label class="block text-white/70 text-sm mb-2">Mamlakat</label>
+          <SearchableSelect 
+            v-model="form.countryId" 
+            :options="countries" 
+            placeholder="Davlat tanlang" 
+          />
+        </div>
+        
+        <!-- Director -->
+        <div>
+          <label class="block text-white/70 text-sm mb-2">Rejissyor</label>
+          <SearchableSelect 
+            v-model="form.directorId" 
+            :options="actors" 
+            placeholder="Rejissyor tanlang" 
+          />
+        </div>
+
+        <!-- Actors -->
+        <div>
+          <label class="block text-white/70 text-sm mb-2">Aktyorlar</label>
+          <SearchableSelect 
+            v-model="form.actorIds" 
+            :options="actors" 
+            :multiple="true" 
+            placeholder="Aktyor tanlang" 
+          />
         </div>
       </div>
 

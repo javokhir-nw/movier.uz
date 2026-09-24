@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   movie: {
@@ -27,6 +27,15 @@ const movieType = props.movie.type || (props.movie.seasons ? 'SERIES' : 'MOVIE')
 const onImageLoad = () => {
   imageLoaded.value = true
 }
+
+const isPremyera = computed(() => {
+  if (!props.movie.createdAt) return false
+  const createdDate = new Date(props.movie.createdAt)
+  const now = new Date()
+  const diffTime = Math.abs(now - createdDate)
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays <= 3
+})
 </script>
 
 <template>
@@ -127,11 +136,17 @@ const onImageLoad = () => {
 
     <!-- Title section - more compact -->
     <div class="p-2 sm:p-2.5">
-      <h3
-          class="text-white font-semibold text-xs sm:text-sm leading-tight truncate group-hover:text-purple-300 transition-colors duration-200"
-      >
-        {{ movie.title }}
-      </h3>
+      <div class="flex items-center justify-between gap-1.5">
+        <h3
+            class="text-white font-semibold text-xs sm:text-sm leading-tight truncate group-hover:text-purple-300 transition-colors duration-200 flex-1"
+        >
+          {{ movie.title }}
+        </h3>
+        
+        <span v-if="isPremyera" class="shrink-0 bg-gradient-to-r from-rose-600 to-red-500 text-white text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(225,29,72,0.4)] animate-pulse border border-white/20">
+          PREMYERA
+        </span>
+      </div>
 
       <!-- Optional: Show first category only if needed, on hover -->
       <div

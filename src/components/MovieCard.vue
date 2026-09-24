@@ -11,9 +11,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+
+  canDelete: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['edit'])
+const emit = defineEmits(['edit', 'delete'])
 const imageLoaded = ref(false)
 
 // Type ni infer qil - seasons bo'lsa SERIES, aks holda MOVIE
@@ -91,33 +96,33 @@ const onImageLoad = () => {
         <span>{{ movieType === 'SERIES' ? 'Serial' : 'Kino' }}</span>
       </div>
 
-      <!-- Edit button -->
-      <button
-          v-if="canEdit"
-          type="button"
-          @click.stop.prevent="emit('edit', movie)"
-          class="absolute top-2 right-2 inline-flex items-center justify-center w-7 h-7 rounded-md bg-black/50 hover:bg-purple-500/80 border border-white/20 text-white text-xs backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
-      >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            class="w-3.5 h-3.5"
+      <!-- Action buttons top-right -->
+      <div v-if="canEdit || canDelete" class="absolute top-2 right-2 flex gap-1">
+        <!-- Edit button -->
+        <button
+            v-if="canEdit"
+            type="button"
+            @click.stop.prevent="emit('edit', movie)"
+            class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-black/50 hover:bg-purple-500/80 border border-white/20 text-white text-xs backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
         >
-          <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 20h9"
-          />
-          <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M16.5 3.5a2.121 2.121 0 013 3L8 18l-4 1 1-4L16.5 3.5z"
-          />
-        </svg>
-      </button>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.121 2.121 0 013 3L8 18l-4 1 1-4L16.5 3.5z" />
+          </svg>
+        </button>
+
+        <!-- Delete button -->
+        <button
+            v-if="canDelete"
+            type="button"
+            @click.stop.prevent="emit('delete', movie)"
+            class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-black/50 hover:bg-red-500/80 border border-white/20 text-white text-xs backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V4a1 1 0 011-1h6a1 1 0 011 1v3" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Title section - more compact -->

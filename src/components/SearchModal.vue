@@ -3,6 +3,7 @@ import { ref, watch, onMounted } from 'vue'
 import { debounce } from '../utils/debounce'
 import { listMovies } from '../services/movie'
 import { listCategories } from '../services/category'
+import SearchableSelect from './SearchableSelect.vue'
 
 const props = defineProps({ modelValue: Boolean })
 const emit = defineEmits(['update:modelValue'])
@@ -11,6 +12,7 @@ const query = ref('')
 const results = ref([])
 const loading = ref(false)
 const categories = ref([])
+const countries = ref([])
 const activeCategoryId = ref(null)
 
 const search = debounce(async (value, categoryId) => {
@@ -23,6 +25,7 @@ const search = debounce(async (value, categoryId) => {
     const { data } = await listMovies(0, 20, {
       value: value.trim().length >= 3 ? value : null,
       categoryId,
+      countryId: activeCountryId.value,
     }, null)
     results.value = data.content
   } finally {
@@ -30,16 +33,25 @@ const search = debounce(async (value, categoryId) => {
   }
 }, 1000)
 
-watch([query, activeCategoryId], ([value, categoryId]) => search(value, categoryId))
+const activeCountryId = ref(null)
+
+watch([query, activeCategoryId, activeCountryId], ([value, categoryId]) => search(value, categoryId))
 
 const selectCategory = (id) => {
   activeCategoryId.value = activeCategoryId.value === id ? null : id
 }
+const selectCountry = (id) => {
+  activeCountryId.value = activeCountryId.value === id ? null : id
+}
 
 onMounted(async () => {
   try {
-    const { data } = await listCategories()
-    categories.value = data
+    const [catRes, covRes] = await Promise.all([
+      listCategories(),
+      import('../services/country').then(m => m.listCountries())
+    ])
+    categories.value = catRes.data
+    countries.value = covRes.data
   } catch {}
 })
 
@@ -48,6 +60,7 @@ const close = () => {
   query.value = ''
   results.value = []
   activeCategoryId.value = null
+  activeCountryId.value = null
 }
 </script>
 
@@ -64,21 +77,24 @@ const close = () => {
         <button @click="close" class="text-white/60 hover:text-white text-lg sm:text-xl shrink-0">✕</button>
       </div>
 
-      <div v-if="categories.length" class="flex gap-1.5 sm:gap-2 flex-wrap mt-3 sm:mt-4">
-        <button
-            v-for="c in categories"
-            :key="c.id"
-            @click="selectCategory(c.id)"
-            class="inline-flex items-center gap-1 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-lg border transition-all duration-200 text-[11px] sm:text-xs font-medium"
-            :class="activeCategoryId === c.id
-            ? 'bg-gradient-to-r from-purple-600 to-purple-500 border-purple-400 text-white shadow-lg shadow-purple-500/30'
-            : 'bg-white/[0.03] border-white/15 text-white/70 hover:bg-white/[0.08] hover:border-white/30 hover:text-white/90'"
-        >
-          <svg v-if="activeCategoryId === c.id" xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
-          </svg>
-          <span>{{ c.name }}</span>
-        </button>
+      <div v-if="categories.length" class="flex flex-col sm:flex-row gap-2.5 sm:gap-4 mt-3 sm:mt-4 relative z-20">
+        <!-- Categories -->
+        <div class="flex-1 w-full">
+           <SearchableSelect 
+             v-model="activeCategoryId" 
+             :options="categories"
+             placeholder="Barcha kategoriyalar"
+           />
+        </div>
+        
+        <!-- Countries -->
+        <div class="flex-1 w-full" v-if="countries.length">
+           <SearchableSelect 
+             v-model="activeCountryId" 
+             :options="countries"
+             placeholder="Barcha davlatlar"
+           />
+        </div>
       </div>
 
       <div class="mt-3 sm:mt-4 max-h-80 sm:max-h-96 overflow-y-auto flex flex-col gap-1.5 sm:gap-2">

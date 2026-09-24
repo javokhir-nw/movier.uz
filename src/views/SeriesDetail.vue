@@ -24,11 +24,8 @@ const hasSeason = computed(() => series.value?.seasons && series.value.seasons.l
 
 const hasDirectEpisodes = computed(() => series.value?.episodes && series.value.episodes.length > 0)
 
-// Faqat direct episodes bo'lsa seasons qo'sha olmasin
-// Seasons bo'lsa ko'proq seasons qo'shish mumkin
 const canAddSeason = computed(() => !hasDirectEpisodes.value)
 
-// Empty series: seasons ham episodes ham yo'q
 const canChoosePath = computed(() => !hasSeason.value && !hasDirectEpisodes.value)
 
 const displayEpisodes = computed(() => {
@@ -83,7 +80,6 @@ const openAddSeason = () => {
 }
 
 const openAddEpisode = (seasonId = null) => {
-  // Agar fasllar bor bo'lsa, fasl tanlangan bo'lishi kerak
   if (hasSeason.value && !seasonId) {
     alert('Iltimos, faslni tanlang')
     return
@@ -97,7 +93,6 @@ const handleSeasonAdded = async () => {
   const { data } = await getMovie(route.params.id)
   series.value = data
 
-  // Yangi qo'shilgan faslni avtomatik tanlash
   if (hasSeason.value && !selectedSeasonId.value) {
     selectedSeasonId.value = series.value.seasons[0].id
   }
@@ -111,42 +106,102 @@ const handleEpisodeAdded = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-indigo-950 px-3 sm:px-4 md:pl-24 md:pr-10 pt-4 sm:pt-5 pb-10">
-    <div class="max-w-6xl mx-auto">
+  <div class="min-h-screen bg-slate-950 pb-10">
+    <p v-if="loading" class="text-white/40 text-center py-20">Yuklanmoqda...</p>
 
-      <p v-if="loading" class="text-white/40 text-center py-10">Yuklanmoqda...</p>
-
-      <template v-else-if="series">
-        <!-- Top: image full width + info -->
-        <div class="rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-purple-900/50 mb-6 sm:mb-8 bg-black aspect-video">
-          <img v-if="series.imageUrl" :src="series.imageUrl" :alt="series.title" class="w-full h-full object-cover" />
+    <template v-else-if="series">
+      
+      <!-- 1) ZAMONAVIY HERO BANNER -->
+      <div class="relative w-full h-[600px] md:h-[500px] lg:h-[600px] bg-black overflow-hidden border-b border-white/5">
+        <!-- Background Blur Image -->
+        <div class="absolute inset-0 opacity-40">
+          <img v-if="series.imageUrl" :src="series.imageUrl" class="w-full h-full object-cover blur-md scale-105" alt="Bg" />
         </div>
+        <!-- Gradient Overlays -->
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/40 to-transparent"></div>
 
-        <!-- Info section -->
-        <div class="mb-8">
-          <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">{{ series.title }}</h1>
+        <!-- Banner Content Area -->
+        <div class="relative z-10 w-full max-w-7xl mx-auto h-full px-4 md:px-12 flex flex-col justify-end pb-12 pt-20">
+          <div class="flex flex-col md:flex-row gap-8 items-end md:items-stretch">
+            
+            <!-- Chapda Poster (Desktop da ko'rinadi asosan) -->
+            <div class="w-36 md:w-64 shrink-0 rounded-2xl overflow-hidden shadow-2xl border border-white/10 hidden sm:block bg-slate-900 group">
+              <img v-if="series.imageUrl" :src="series.imageUrl" alt="Poster" class="w-full h-full object-cover aspect-[2/3] group-hover:scale-105 transition duration-500" />
+            </div>
 
-          <div class="flex gap-2 mb-4 sm:mb-6 flex-wrap">
-            <span v-for="c in series.categories" :key="c.id" class="text-xs sm:text-sm text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 px-3 py-1 rounded-lg transition">
-              {{ c.name }}
-            </span>
+            <!-- Ma'lumotlar Qismi -->
+            <div class="flex-grow flex flex-col justify-end">
+              <!-- Kategoriyalar -->
+              <div class="flex gap-2 mb-3 flex-wrap">
+                <span v-for="c in series.categories" :key="c.id" class="text-[10px] md:text-xs font-bold text-white uppercase tracking-widest bg-white/10 px-3 py-1 rounded border border-white/20 backdrop-blur-md">
+                  {{ c.name }}
+                </span>
+                <span class="text-[10px] md:text-xs font-bold text-indigo-300 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded border border-indigo-500/20 backdrop-blur-md">
+                  Serial
+                </span>
+              </div>
+              
+              <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-white mb-4 drop-shadow-lg tracking-tight">
+                {{ series.title }}
+              </h1>
+              
+              <p class="text-white/80 leading-relaxed text-sm md:text-base max-w-4xl mb-6 md:mb-8 line-clamp-3 md:line-clamp-none text-shadow-sm">
+                {{ series.description }}
+              </p>
+
+              <!-- Cast & Crew Glassmorphism Card (Pleyerdagi blok yuqoriga aylanadi) -->
+              <div v-if="series.director || (series.actors && series.actors.length)" class="bg-white/5 backdrop-blur-xl rounded-2xl p-4 md:p-5 border border-white/10 w-full max-w-4xl flex flex-col md:flex-row gap-6 shadow-2xl">
+                
+                <!-- Rejissyor -->
+                <div v-if="series.director" class="md:w-1/4 shrink-0 border-b md:border-b-0 md:border-r border-white/10 pb-4 md:pb-0 md:pr-4">
+                  <h3 class="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-3">Rejissyor</h3>
+                  <div class="flex items-center gap-3 group/person cursor-default">
+                    <img v-if="series.director.imageUrl" :src="series.director.imageUrl" class="w-11 h-11 rounded-full object-cover shadow-lg group-hover/person:ring-2 ring-purple-500 transition" />
+                    <div v-else class="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center shadow-lg"><span class="text-sm">🎬</span></div>
+                    <span class="font-medium text-white/90 text-sm group-hover/person:text-purple-300 transition">{{ series.director.name }}</span>
+                  </div>
+                </div>
+
+                <!-- Bosh Rollarda (Actors) -->
+                <div v-if="series.actors && series.actors.length" class="flex-grow">
+                  <h3 class="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-3">Bosh rollarda</h3>
+                  <div class="flex flex-wrap gap-3">
+                    <div v-for="actor in series.actors.slice(0, 5)" :key="actor.id" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 transition rounded-full pr-3 pb-0.5 pt-0.5 pl-0.5 border border-white/5 group/actor cursor-default">
+                      <img v-if="actor.imageUrl" :src="actor.imageUrl" class="w-8 h-8 rounded-full object-cover group-hover/actor:scale-110 transition duration-300 shadow-md" />
+                      <div v-else class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><span class="text-xs">🎭</span></div>
+                      <span class="text-xs text-white/80 font-medium group-hover/actor:text-white transition">{{ actor.name }}</span>
+                    </div>
+                    <div v-if="series.actors.length > 5" class="flex items-center justify-center px-3 py-1 rounded-full border border-dashed border-white/20 text-xs text-white/40 cursor-default hover:text-white/60 hover:border-white/40 transition">
+                      +{{ series.actors.length - 5 }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
           </div>
-
-          <p class="text-white/70 leading-relaxed text-sm sm:text-base max-w-3xl">{{ series.description }}</p>
         </div>
+      </div>
 
+      <!-- 2) QISMLAR VA VIDEOPLAYER -->
+      <div class="max-w-6xl mx-auto px-3 sm:px-4 md:pl-24 md:pr-10 mt-8 mb-12">
+        
         <!-- Seasons (if available) -->
-        <div v-if="hasSeason" class="mb-12">
-          <div class="flex items-center justify-end mb-6">
+         <div v-if="hasSeason" class="mb-10">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-white">Fasllar</h2>
             <button
               v-if="auth.hasPermission('upsert movie') && canAddSeason"
               @click="openAddSeason"
-              class="text-xs sm:text-sm bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-4 py-2 rounded-lg transition shadow-lg shadow-purple-500/20"
+              class="text-[10px] sm:text-xs bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white px-3 py-1.5 rounded-lg transition shadow-lg shadow-purple-500/20"
             >
               + Fasl qo'shish
             </button>
           </div>
-          <div class="flex gap-3 flex-wrap">
+          
+          <div class="flex gap-2.5 flex-wrap">
             <button
               v-for="season in series.seasons"
               :key="season.id"
@@ -160,7 +215,7 @@ const handleEpisodeAdded = async () => {
             >
               <span class="flex items-center gap-2">
                 <span v-if="selectedSeasonId === season.id" class="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></span>
-                {{ season.seasonName || `Fasl ${season.orderNumber}` }}
+                {{ season.seasonName || `${season.orderNumber}-Fasl` }}
               </span>
             </button>
           </div>
@@ -168,38 +223,39 @@ const handleEpisodeAdded = async () => {
 
         <!-- Episodes -->
         <div v-if="sortedDisplayEpisodes.length || hasSeason" class="mb-8">
-          <div class="flex items-center justify-end mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-white">Qismlar</h2>
             <button
               v-if="auth.hasPermission('upsert movie') && (!hasSeason || selectedSeasonId)"
               @click="openAddEpisode(selectedSeasonId)"
-              class="text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-4 py-2 rounded-lg transition shadow-lg shadow-indigo-500/20"
+              class="text-[10px] sm:text-xs bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-3 py-1.5 rounded-lg transition shadow-lg shadow-indigo-500/20"
             >
               + Qism qo'shish
             </button>
           </div>
 
           <!-- Episodes Grid -->
-          <div v-if="sortedDisplayEpisodes.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div v-if="sortedDisplayEpisodes.length" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <button
               v-for="episode in sortedDisplayEpisodes"
               :key="episode.id"
               @click="selectEpisode(episode)"
-              class="group relative p-3 sm:p-4 rounded-lg border transition-all duration-300 text-left overflow-hidden"
+              class="group relative p-3 sm:p-4 rounded-xl border transition-all duration-300 text-left overflow-hidden"
               :class="
                 selectedEpisode?.id === episode.id
-                  ? 'bg-gradient-to-br from-purple-600/60 to-purple-500/30 border-purple-400/60 text-white shadow-lg shadow-purple-500/30 scale-[1.02]'
-                  : 'bg-white/[0.03] border-white/15 text-white/70 hover:bg-white/[0.08] hover:border-white/30 hover:text-white'
+                  ? 'bg-gradient-to-br from-purple-600/60 to-purple-500/30 border-purple-400/60 text-white shadow-lg shadow-purple-500/30 scale-105'
+                  : 'bg-slate-900 border-white/10 text-white/70 hover:bg-slate-800 hover:border-white/30 hover:text-white'
               "
             >
               <!-- Animated background effect -->
               <div v-if="selectedEpisode?.id === episode.id" class="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-transparent to-purple-400/10 animate-pulse pointer-events-none"></div>
 
-              <div class="relative z-10">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="font-bold text-xs sm:text-sm bg-white/10 px-2.5 py-0.5 rounded">{{ episode.orderNumber }}</span>
-                  <span v-if="selectedEpisode?.id === episode.id" class="inline-block w-2 h-2 rounded-full bg-purple-300 animate-pulse"></span>
+              <div class="relative z-10 flex flex-col h-full justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-lg leading-none" :class="selectedEpisode?.id === episode.id ? 'text-white' : 'text-white/40'">{{ episode.orderNumber }}</span>
+                  <span v-if="selectedEpisode?.id === episode.id" class="inline-block w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></span>
                 </div>
-                <div v-if="episode.title" class="text-[10px] sm:text-xs text-white/60 line-clamp-2 group-hover:text-white/80">{{ episode.title }}</div>
+                <div v-if="episode.title" class="text-[10px] sm:text-xs font-medium line-clamp-2 leading-tight group-hover:text-white/90" :class="selectedEpisode?.id === episode.id ? 'text-white/90' : 'text-white/60'">{{ episode.title }}</div>
               </div>
             </button>
           </div>
@@ -213,55 +269,48 @@ const handleEpisodeAdded = async () => {
           :movie-id="selectedEpisode.id"
         />
 
-        <!-- No content -->
-        <div v-else class="text-center py-10">
-          <!-- Empty series - can choose path -->
+        <!-- No content message state -->
+        <div v-else class="text-center py-16 bg-slate-900/50 rounded-2xl border border-white/5 mb-8">
           <template v-if="canChoosePath">
-            <p class="text-white/40 mb-4">Bu serialga qism yoki fasl qo'shish kerak</p>
-            <button
-              v-if="auth.hasPermission('upsert movie')"
-              @click="openAddEpisode(null)"
-              class="mt-4 text-purple-400 hover:text-purple-300"
-            >
-              + Birinchi qism qo'shish (bevosita)
-            </button>
-            <button
-              v-if="auth.hasPermission('upsert movie')"
-              @click="openAddSeason"
-              class="mt-2 ml-2 text-purple-400 hover:text-purple-300"
-            >
-              + Fasl qo'shish
-            </button>
+            <p class="text-white/40 mb-4">Bu serialga hali qism yoki fasl qo'shilmagan.</p>
+            <div class="flex justify-center gap-3">
+              <button
+                v-if="auth.hasPermission('upsert movie')"
+                @click="openAddEpisode(null)"
+                class="px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-sm transition"
+              >
+                + Bitta epizod qo'shish
+              </button>
+              <button
+                v-if="auth.hasPermission('upsert movie')"
+                @click="openAddSeason"
+                class="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 text-sm transition"
+              >
+                + Fasl qo'shish
+              </button>
+            </div>
           </template>
 
-          <!-- Series with seasons - need to select season first -->
           <template v-else-if="hasSeason">
-            <p class="text-white/40 mb-2">📺 Bu serial fasllar bilan tashkil topgan</p>
+            <p class="text-white/40 mb-2">Bu serial fasllar bilan tashkil topgan</p>
             <p class="text-white/50 text-sm mb-4">Faslni tanlang va qism qo'shish tugmasini bosing</p>
-            <button
-              v-if="auth.hasPermission('upsert movie') && canAddSeason"
-              @click="openAddSeason"
-              class="mt-2 text-purple-400 hover:text-purple-300"
-            >
-              + Ko'proq fasl qo'shish
-            </button>
           </template>
 
-          <!-- Series with direct episodes - can't add seasons -->
           <template v-else-if="hasDirectEpisodes">
-            <p class="text-white/40 mb-2">🎬 Bu serial bevosita episodlar bilan</p>
-            <p class="text-white/50 text-sm mb-4">Yangi episodlar qo'shishingiz mumkin</p>
+            <p class="text-white/40 mb-2">Bu serial bevosita episodlar orqali uzatiladi</p>
+            <p class="text-white/50 text-sm mb-4">Qism yaratilmagan</p>
             <button
               v-if="auth.hasPermission('upsert movie')"
               @click="openAddEpisode(null)"
-              class="mt-2 text-purple-400 hover:text-purple-300"
+              class="px-4 py-2 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 text-sm transition"
             >
               + Episod qo'shish
             </button>
           </template>
         </div>
-      </template>
-    </div>
+
+      </div>
+    </template>
 
     <!-- Season Manager Modal -->
     <SeasonManager

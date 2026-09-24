@@ -7,6 +7,7 @@ export const listSeries = (page = 0, size = 10, search = {}) =>
         search: {
             value: search.value ?? null,
             categoryId: search.categoryId ?? null,
+            countryId: search.countryId ?? null,
             type: "SERIES"
         },
     })
@@ -16,3 +17,6 @@ export const getSeries = (id) =>
 
 export const upsertSeries = (series) =>
     api.post('/series/upsert', series)
+
+export const deleteSeries = (id) =>
+    api.delete(`/movie/delete/${id}`)
